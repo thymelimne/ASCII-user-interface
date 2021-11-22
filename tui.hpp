@@ -93,7 +93,7 @@ public:
 	//////////////////////////////////////
 	// Attributes
 
-	COORD pos;
+	COORD location;
 	std::string drawing;
 	COORD size; //Size of the drawing.
 
@@ -106,20 +106,23 @@ public:
 	// Constructors
 	Grid(COORD size) //(To make the beginning canvas.)
 	{
-		this->size = size;
+		this->setSize(size);
 	}
 	Grid(std::string drawing) //(To make more additional grids)
 	{
-		this->drawing = drawing;
+		this->setDrawing(drawing);
+		this->setSize();
 	}
 
 	void append(Grid* subGrid, COORD location) //Attach a subgrid onto this current grid.
 	{
-		
+		subGrid->setLocation(location);
+		this->subGrids.append(subGrid);
 	}
 
 	//////////////////////////////////
-	//Setters:
+	// Setters:
+	void setSize() { this->size = findSize(); }
 	void setSize(COORD size) { this->size = size; }
 	void setLocation(COORD location) { this->location = location; }
 	void setDrawing(std::string drawing) { this->drawing = drawing; }
@@ -142,8 +145,6 @@ public:
 	void display()
 	{
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), this->location);
-
-
 		linesDown = 0;
 		for (int i = 0; i < this->drawing.length(); i += 1)
 		{
@@ -161,7 +162,6 @@ public:
 				std::cout << drawing[i - linesDown];
 			}
 		}
-
 		//Then, draw each subGrid:
 		for (std::vector<Grid>::iterator subGrid = this->subGrids.begin(); subGrid != this->subGrids.end(); ++subGrid)
 		{
@@ -176,5 +176,33 @@ private:
 	{
 		this->drawing[(localLocation.x + 1) * (localLocation.y + 1) - 1 + localLocation.y] = newChar; //TODO: Look over & make sure this logic is right.
 		//	As goofy as 'localLocation' seems, it's to make it clear that this 'location' is relative to the Grid it's attached to, not necessarily the original canvas Grid object.
+	}
+
+	int findSize() //Find the 'size' dimensions based on the drawing.
+	{
+		int sizeX = 0;
+		int maxSizeX = 0; 
+		int sizeY = 0;
+		for (int i = 0; i < this->drawing.length(); i += 1)
+		{
+			if (this->drawing[i] == '\n')
+			{
+				if (sizeX > maxSizeX)
+				{
+					maxSizeX = sizeX;
+				}
+				sizeX = 0;
+				sizeY += 1;
+			}
+			else
+			{
+				sizeX += 1;
+			}
+		}
+		if (sizeX > maxSizeX)
+		{
+			maxSizeX = sizeX;
+		}
+		return { maxSizeX, sizeY };
 	}
 };
