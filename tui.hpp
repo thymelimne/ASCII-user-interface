@@ -12,7 +12,7 @@ _________________
                 |		<--- Here is an example of a picture you might draw.
        ##       |	
      ######     |			But, what if you wanted a dashboard about this plant, at the corner of the screen?
-   ##########   |												...Maybe, to display about how hydrated it is?
+   ##########   |								...Maybe, to display about how hydrated it is?
      ######     |				
        ##   #   |				That is why this program takes an object-oriented approach.
        ## ##    |
@@ -41,8 +41,8 @@ To use:
 
  _._     _,-'""`-._
 (,-.`._,'(       |\`-/|
-	`-.-' \ )-`( , o o)
-		  `-    \`_`"'-
+    `-.-' \ )-`( , o o)
+          `-    \`_`"'-
 
 	>>  std::string drawing = " _._     _,-'""`-._\n(,-.`._,'(       |\`-/|\n    `-.-' \ )-`( , o o)\n          `-    \`_`"'-"
 	>>	Grid foxPicture{drawing};
