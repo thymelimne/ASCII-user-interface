@@ -9,16 +9,16 @@ struct COORD {int x;int y;};
 TUI: Text User Interface. Like a GUI, but it's text that gets printed to the console, then eventually printed over when the program updates it.
 This TUI takes an object-oriented approach, with a tree structure of 'Grid' objects.
 _________________
-                |		<--- Here is an example of a picture you might draw.
+                |	<--- Here is an example of a picture you might draw.
        ##       |	
-     ######     |			But, what if you wanted a dashboard about this plant, at the corner of the screen?
-   ##########   |								...Maybe, to display about how hydrated it is?
+     ######     |		But, what if you wanted a dashboard about this plant, at the corner of the screen?
+   ##########   |							...Maybe, to display about how hydrated it is?
      ######     |				
-       ##   #   |				That is why this program takes an object-oriented approach.
+       ##   #   |			That is why this program takes an object-oriented approach.
        ## ##    |
-       ####     |					Each object holds something you want to draw, and where you want to draw it,
-       ##       |					so you could easily define another 'Grid' object, that you'd name 'dashboard',
-%%%%%%%%%%%%%%%%%					and then set its location to wherever you like on the canvas. (...& then reposition it.)
+       ####     |				Each object holds something you want to draw, and where you want to draw it,
+       ##       |				so you could easily define another 'Grid' object, that you'd name 'dashboard',
+%%%%%%%%%%%%%%%%%				and then set its location to wherever you like on the canvas. (...& then reposition it.)
 
 
 
