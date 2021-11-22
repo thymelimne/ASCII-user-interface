@@ -108,24 +108,27 @@ public:
 	{
 		this->size = size;
 	}
-	Grid(COORD size, std::string drawing, Grid* parent, COORD pos) //(To make a new drawing, later on in the process.)
+	Grid(std::string drawing) //(To make more additional grids)
 	{
-		setSize(size);
-		setDrawing(drawing);
-		setParent(parent);
-		setPos(pos);
+		this->drawing = drawing;
 	}
 
+	void append(Grid* subGrid, COORD location) //Attach a subgrid onto this current grid.
+	{
+		
+	}
+
+	//////////////////////////////////
 	//Setters:
 	void setSize(COORD size) { this->size = size; }
-	void setPos(COORD pos) { this->pos = pos; }
+	void setLocation(COORD location) { this->location = location; }
 	void setDrawing(std::string drawing) { this->drawing = drawing; }
 	void setParent(Grid* parent) { this->parent = parent; }
 	void setSubGrids(std::vector<Grid> subGrids) { this->subGrids = subGrids; }
+	void setData(T data) { this->data = data; }
 
 	/////////////////////////////////
 	// Key functions
-
 	virtual void prepare()
 	{
 		//Prepare the drawing, based on the most recent data that the object holds.
@@ -133,38 +136,45 @@ public:
 	}
 	void prepare(T data)
 	{
-		this->data = data;
+		this->setData(data);
 		this->prepare();
 	}
-	void draw()
+	void display()
 	{
-		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), this->pos);
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), this->location);
 
 
 		linesDown = 0;
 		for (int i = 0; i < this->drawing.length(); i += 1)
 		{
-			if (drawing[i] != '`') //Should treat as nothingness -- move cursor over one.
+			if (drawing[i] != '\t') //Should treat as nothingness -- move cursor over one.	(So, if there was prior drawing underneath, then leave that character intact.)
 			{
-				std::cout << '`';//TODO: Actually implement this... probably using GetConsoleCursorPosition and SetConsoleCursorPosition.
+				std::cout << '%';//TODO: Actually implement this... probably using GetConsoleCursorPosition and SetConsoleCursorPosition.
 			}
 			if (drawing[i] == '\n')
 			{
 				linesDown += 1;
-				SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), { this->pos.x, this->pos.y + linesDown });
+				SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), { this->location.x, this->location.y + linesDown });
 			}
 			else
 			{
 				std::cout << drawing[i - linesDown];
 			}
 		}
+
+		//Then, draw each subGrid:
+		for (std::vector<Grid>::iterator subGrid = this->subGrids.begin(); subGrid != this->subGrids.end(); ++subGrid)
+		{
+			subGrid.display();
+		}
 	}
 
 
 private:
 
-	void setChar(COORD localPos, char newChar)//Change a character in the 'drawing' string:
+	void setChar(COORD localLocation, char newChar) // Change a character in the 'drawing' string:
 	{
-		this->drawing[(localPos.x + 1) * (localPos.y + 1) - 1 + localPos.y] = newChar; //TODO: Look over & make sure this logic is right.
+		this->drawing[(localLocation.x + 1) * (localLocation.y + 1) - 1 + localLocation.y] = newChar; //TODO: Look over & make sure this logic is right.
+		//	As goofy as 'localLocation' seems, it's to make it clear that this 'location' is relative to the Grid it's attached to, not necessarily the original canvas Grid object.
 	}
 };
