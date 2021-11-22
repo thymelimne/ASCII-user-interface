@@ -45,7 +45,7 @@ To use:
           `-    \`_`"'-
 
 	>>  std::string drawing = " _._     _,-'""`-._\n(,-.`._,'(       |\`-/|\n    `-.-' \ )-`( , o o)\n          `-    \`_`"'-"
-	>>	Grid foxPicture{drawing};
+	>>  Grid foxPicture{drawing};
 	>>  canvas.append(foxPicture, {0,25}) //'location'={0,25}, to place the drawing leftmost, and toward the bottom of the whole tapestry.
 
 			NOTES ABOUT LOCATION:
