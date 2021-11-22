@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include <Windows.h>
-struct COORD {int x;int y;};
 
 /*
 TUI: Text User Interface. Like a GUI, but it's text that gets printed to the console, then eventually printed over when the program updates it.
@@ -90,6 +89,50 @@ The same format as above applies to another function, 'addData()', by which the 
 	>>  };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FUNCTIONS LIST:
+public:
+	Constructors
+	Setters
+	append()
+	display()
+virtual public:
+	prepare()
+	addData()
+	initialDrawing()
+private:
+	setChar()
+	findSize()
+
+
+ATTRIBUTES LIST:
+location
+drawing
+size
+parent
+subGrids
+data
+
+
+
+
+
+
+
+
 */
 template <typename T>
 class Grid
@@ -118,6 +161,11 @@ public:
 		this->setDrawing(drawing);
 		this->setSize();
 	}
+	Grid() //(To make more additional grids... Use this constructor when you've made an extension of this class, and implemented initialDrawing().)
+	{
+		this->initialDrawing();
+		this->setSize();
+	}
 
 	void append(Grid* subGrid, COORD location) //Attach a subgrid onto this current grid.
 	{
@@ -140,7 +188,7 @@ public:
 	void display()
 	{
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), this->location);
-		linesDown = 0;
+		int linesDown = 0;
 		for (int i = 0; i < this->drawing.length(); i += 1)
 		{
 			if (drawing[i] != '\t') //Should treat as nothingness -- move cursor over one.	(So, if there was prior drawing underneath, then leave that character intact.)
@@ -158,9 +206,9 @@ public:
 			}
 		}
 		//Then, draw each subGrid:
-		for (std::vector<Grid>::iterator subGrid = this->subGrids.begin(); subGrid != this->subGrids.end(); ++subGrid)
+		for (int i=0; i < this->subGrids.size(); i++)
 		{
-			subGrid.display();
+			this->subGrids[i].display();
 		}
 	}
 
@@ -183,15 +231,20 @@ public:
 		this->setData(data);
 	}
 
+	virtual void initialDrawing()//Left 'virtual' for when it gets re-implemented in an extension of this class.
+	{
+		this->setDrawing("");//Deliberately empty, for now.
+	}
+
 private:
 
 	void setChar(COORD localLocation, char newChar) // Change a character in the 'drawing' string:
 	{
-		this->drawing[(localLocation.x + 1) * (localLocation.y + 1) - 1 + localLocation.y] = newChar; //TODO: Look over & make sure this logic is right.
+		this->drawing[(localLocation.X + 1) * (localLocation.Y + 1) - 1 + localLocation.Y] = newChar; //TODO: Look over & make sure this logic is right.
 		//	As goofy as 'localLocation' seems, it's to make it clear that this 'location' is relative to the Grid it's attached to, not necessarily the original canvas Grid object.
 	}
 
-	int findSize() //Find the 'size' dimensions based on the drawing.
+	auto findSize() //Find the 'size' dimensions based on the drawing.
 	{
 		int sizeX = 0;
 		int maxSizeX = 0; 
