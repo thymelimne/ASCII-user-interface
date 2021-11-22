@@ -11,13 +11,13 @@ This TUI takes an object-oriented approach, with a tree structure of 'Grid' obje
 _________________
                 |		<--- Here is an example of a picture you might draw.
        ##       |	
-	 ######     |			But, what if you wanted a dashboard about this plant, at a corner of the screen?
+     ######     |			But, what if you wanted a dashboard about this plant, at a corner of the screen?
    ##########   |												...Maybe, to display about how hydrated it is?
      ######     |				
-	   ##   #   |				That is why this program takes an object-oriented approach.
-	   ## ##    |
-	   ####     |					Each object holds something you want to draw, and where you want to draw it,
-	   ##       |					so you could easily define another 'Grid' object, that you'd name 'dashboard',
+       ##   #   |				That is why this program takes an object-oriented approach.
+       ## ##    |
+       ####     |					Each object holds something you want to draw, and where you want to draw it,
+       ##       |					so you could easily define another 'Grid' object, that you'd name 'dashboard',
 %%%%%%%%%%%%%%%%%					and then set its location to wherever you like on the canvas. (...& then reposition it.)
 
 
@@ -41,7 +41,7 @@ To use:
 
  _._     _,-'""`-._
 (,-.`._,'(       |\`-/|
-	`-.-' \ )-`( , o o)
+    `-.-' \ )-`( , o o)
 		  `-    \`_`"'-
 
 	>>  std::string drawing = " _._     _,-'""`-._\n(,-.`._,'(       |\`-/|\n    `-.-' \ )-`( , o o)\n          `-    \`_`"'-"
