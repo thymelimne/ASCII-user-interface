@@ -8,17 +8,17 @@ struct COORD {int x;int y;};
 /*
 TUI: Text User Interface. Like a GUI, but it's text that gets printed to the console, then eventually printed over when the program updates it.
 This TUI takes an object-oriented approach, with a tree structure of 'Grid' objects.
-_________________
-                | <-- Here is an example of a picture you might draw.
-       ##       |	
-     ######     |	But, what if you wanted a dashboard about this plant, at a corner of the screen?
-   ##########   |		...Maybe, to display about how hydrated it is?
-     ######     |				
-       ##   #   |		That is why this program takes an object-oriented approach.
-       ## ##    |
-       ####     |			Each object holds something you want to draw, and where you want to draw it,
-       ##       |			so you could easily define another 'Grid' object, that you'd name 'dashboard',
-%%%%%%%%%%%%%%%%%			and then set its location to wherever you like on the canvas. (...& then reposition it.)
+__________________
+|                | <-- Here is an example of a picture you might draw.
+|       ##       |	
+|     ######     |	But, what if you wanted a dashboard about this plant, at a corner of the screen?
+|   ##########   |		...Maybe, to display about how hydrated it is?
+|     ######     |				
+|       ##   #   |		That is why this program takes an object-oriented approach.
+|       ## ##    |
+|       ####     |			Each object holds something you want to draw, and where you want to draw it,
+|       ##       |			so you could easily define another 'Grid' object, that you'd name 'dashboard',
+%%%%%%%%%%%%%%%%%%			and then set its location to wherever you like on the canvas. (...& then reposition it.)
 
 
 
@@ -46,7 +46,7 @@ To use:
 
 	>>  std::string drawing = " _._     _,-'""`-._\n(,-.`._,'(       |\`-/|\n    `-.-' \ )-`( , o o)\n          `-    \`_`"'-";
 	>>  Grid foxPicture{drawing};
-	>>  canvas.append(foxPicture, {0,25}) //'location'={0,25}, to place the drawing leftmost, and toward the bottom of the whole tapestry.
+	>>  canvas.append(foxPicture, {0,25}); //'location'={0,25}, to place the drawing leftmost, and toward the bottom of the whole tapestry.
 
 			NOTES ABOUT LOCATION:
 			 - The 'location' is where the top left corner of this picture should get placed
@@ -76,13 +76,18 @@ To display your drawings, call the function:
 There is another class function, currently empty, called prepare(). This is left open for a programmer.
 To use this function, create a class that inherits from Grid, and define prepare() in that.
 
-	>>  class tetrisGame : class Grid { public:
-	>>		void prepare(T data)
+	>>  class TetrisGame : class Grid { public:
+	>>		void prepare()
 	>>			{****Write your implementation of this method here...****}
-	>>  };
 
-What 'prepare()' is supposed to do, is take data that suggests how it should change its drawing, 
+What 'prepare()' is supposed to do, is look at the information stored in the 'data' attribute,
  and change either its own drawing, or a drawing of one of its subGrids, in a desired way.
+The same format as above applies to another function, 'addData()', by which the object would
+ take in new data in a desired way.
+
+	>>		void addData(T data)
+	>>			{****Write your implementation of this method here....****}
+	>>  };
 
 
 */
@@ -132,16 +137,6 @@ public:
 
 	/////////////////////////////////
 	// Key functions
-	virtual void prepare()
-	{
-		//Prepare the drawing, based on the most recent data that the object holds.
-		//	(...Do nothing here, until a class that inherits from 'Grid' does something here.)
-	}
-	void prepare(T data)
-	{
-		this->setData(data);
-		this->prepare();
-	}
 	void display()
 	{
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), this->location);
@@ -169,6 +164,24 @@ public:
 		}
 	}
 
+	virtual void prepare()
+	{
+		//Prepare the drawing, based on the most recent data that the object holds.
+		//	(...Do nothing here, until a class that inherits from 'Grid' does something here.)
+	}
+	void prepare(T data)
+	{
+		this->addData(data);
+		this->prepare();
+	}
+
+	virtual void addData(T data)
+	{
+		//Currently, this method simply replaces the currently data with the given data. 
+		// However, it's left open for a future programmer, if they want a 'Grid' extension to take in the new information in a different way.
+		// (For example, adding it to a list of recent data pieces...)
+		this->setData(data);
+	}
 
 private:
 
