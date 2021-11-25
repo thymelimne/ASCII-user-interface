@@ -74,7 +74,7 @@ To display your drawings, call the function:
 There is another class function, currently empty, called prepare(). This is left open for a programmer.
 To use this function, create a class that inherits from Grid, and define prepare() in that.
 
-	>>  class TetrisGame : class Grid { public:
+	>>  class TetrisGame : public Grid { public:
 	>>		void prepare()
 	>>			{****Write your implementation of this method here...****}
 
