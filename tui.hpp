@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include <Windows.h>
-
 /*
 TUI: Text User Interface. Like a GUI, but it's text that gets printed to the console, then eventually printed over when the program updates it.
 This TUI takes an object-oriented approach, with a tree structure of 'Grid' objects.
@@ -106,14 +105,14 @@ The same format as above applies to another function, 'addData()', by which the 
 FUNCTIONS LIST:
 public:
 	Constructors
-	Setters
+	Setters & getters
 	append()
 	display()
 virtual public:
 	prepare()
 	addData()
 	initialDrawing()
-private:
+protected:
 	setChar()
 	findSize()
 
@@ -134,7 +133,6 @@ data
 
 
 */
-template <typename T>
 class Grid
 {
 public:
@@ -148,7 +146,7 @@ public:
 	Grid* parent;
 	std::vector<Grid> subGrids;
 
-	T data; //Most recent
+	std::string data; //Most recent
 
 	/////////////////////////////////////
 	// Constructors
@@ -167,89 +165,90 @@ public:
 		this->setSize();
 	}
 
-	void append(Grid* subGrid, COORD location) //Attach a subgrid onto this current grid.
+	void append(Grid subGrid, COORD location) //Attach a subgrid onto this current grid.
 	{
-		subGrid->setLocation(location);
-		this->subGrids.append(subGrid);
+		subGrid.location = location;
+		this->subGrids.push_back(subGrid);
 	}
 
 	//////////////////////////////////
-	// Setters:
-	void setSize() { this->size = findSize(); }
+	// Setters & Getters:
+	void setSize() { this->size = this->findSize(); }//Deliberately overloaded method
 	void setSize(COORD size) { this->size = size; }
 	void setLocation(COORD location) { this->location = location; }
 	void setDrawing(std::string drawing) { this->drawing = drawing; }
 	void setParent(Grid* parent) { this->parent = parent; }
 	void setSubGrids(std::vector<Grid> subGrids) { this->subGrids = subGrids; }
-	void setData(T data) { this->data = data; }
+	void setData(std::string data) { this->data = data; }
+	//
+	COORD getSize() { return this->size; }
+	COORD getLocation() { return this->location; }
+	std::string getDrawing() { return this->drawing; }
+	Grid* getParent() { return this->parent; }
+	std::vector<Grid> getSubGrids() { return this->subGrids; }
+	std::string getData() { return this->data; }
 
 	/////////////////////////////////
 	// Key functions
 	void display()
 	{
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), this->location);
-		int linesDown = 0;
-		for (int i = 0; i < this->drawing.length(); i += 1)
+		short linesDown = 0;
+		std::string thisLine = "";
+		for (size_t i = 0; i < drawing.size(); i++)
 		{
-			if (drawing[i] != '\t') //Should treat as nothingness -- move cursor over one.	(So, if there was prior drawing underneath, then leave that character intact.)
-			{
-				std::cout << '%';//TODO: Actually implement this... probably using GetConsoleCursorPosition and SetConsoleCursorPosition.
-			}
 			if (drawing[i] == '\n')
 			{
+				std::cout << thisLine;
+				thisLine = "";
 				linesDown += 1;
-				SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), { this->location.x, this->location.y + linesDown });
+				SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), { this->location.X, (short)(this->location.Y + linesDown) });
 			}
 			else
 			{
-				std::cout << drawing[i - linesDown];
+				thisLine.append(1, drawing[i]);
 			}
 		}
-		//Then, draw each subGrid:
-		for (int i=0; i < this->subGrids.size(); i++)
-		{
-			this->subGrids[i].display();
+		//Then, display each subGrid:
+		for (std::vector<Grid>::iterator it = this->subGrids.begin(); it != this->subGrids.end(); ++it) {
+			it[0].display();
 		}
 	}
 
-	virtual void prepare()
+	virtual void prepare()//Prepare the drawing, based on the most recent data that the object holds.  (...Do nothing here, until a class that inherits from 'Grid' does something here.)
 	{
-		//Prepare the drawing, based on the most recent data that the object holds.
-		//	(...Do nothing here, until a class that inherits from 'Grid' does something here.)
 	}
-	void prepare(T data)
+	void prepare(std::string data)
 	{
 		this->addData(data);
 		this->prepare();
 	}
-
-	virtual void addData(T data)
+	virtual void addData(std::string data)
 	{
 		//Currently, this method simply replaces the currently data with the given data. 
 		// However, it's left open for a future programmer, if they want a 'Grid' extension to take in the new information in a different way.
 		// (For example, adding it to a list of recent data pieces...)
 		this->setData(data);
 	}
-
 	virtual void initialDrawing()//Left 'virtual' for when it gets re-implemented in an extension of this class.
 	{
 		this->setDrawing("");//Deliberately empty, for now.
 	}
 
-private:
+protected:
 
 	void setChar(COORD localLocation, char newChar) // Change a character in the 'drawing' string:
 	{
 		this->drawing[(localLocation.X + 1) * (localLocation.Y + 1) - 1 + localLocation.Y] = newChar; //TODO: Look over & make sure this logic is right.
-		//	As goofy as 'localLocation' seems, it's to make it clear that this 'location' is relative to the Grid it's attached to, not necessarily the original canvas Grid object.
+		//	As goofy as 'localLocation' seems, it's to make it clear that this 'location' is relative the top-left corner of this current Grid, not necessarily the original canvas Grid object.
 	}
 
-	auto findSize() //Find the 'size' dimensions based on the drawing.
+	COORD findSize() //Find the 'size' dimensions based on the drawing.
 	{
 		int sizeX = 0;
 		int maxSizeX = 0; 
 		int sizeY = 0;
-		for (int i = 0; i < this->drawing.length(); i += 1)
+		for (int i = 0; i < (int)this->drawing.length(); i += 1)
 		{
 			if (this->drawing[i] == '\n')
 			{
@@ -269,6 +268,6 @@ private:
 		{
 			maxSizeX = sizeX;
 		}
-		return { maxSizeX, sizeY };
+		return { (short)maxSizeX, (short)sizeY };
 	}
 };
