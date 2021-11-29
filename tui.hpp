@@ -29,7 +29,7 @@ To use:
  1. First, note that the cruicial code for this relies on the SetConsoleCursorPosition() method given by <Windows.h>.
 	So, it'll probably only work for your coding project if you're using Windows... Apologies, otherwise.
  2. Include this file as a header.
- 3. In your main code, initialize the class somewhere, in the following way:
+ 3. In your main code, initialize this class somewhere, in the following way:
  
 	>>  COORD size = {100,30}; //100 characters horizontally(x-axis), 30 characters vertically(y-axis).
 	>>  Grid canvas{size}; //Make an empty canvas.
@@ -136,19 +136,15 @@ data
 class Grid
 {
 public:
-	//////////////////////////////////////
+	/////////////////////////////////////////
 	// Attributes
-
 	COORD location;
 	std::string drawing;
-	COORD size; //Size of the drawing.
-
+	COORD size;//Size of the drawing.
 	Grid* parent;
 	std::vector<Grid> subGrids;
-
-	std::string data; //Most recent
-
-	/////////////////////////////////////
+	std::string data;//Most recent
+	/////////////////////////////////////////
 	// Constructors
 	Grid(COORD size) //(To make the beginning canvas.)
 	{
@@ -164,15 +160,13 @@ public:
 		this->initialDrawing();
 		this->setSize();
 	}
-
 	void append(Grid subGrid, COORD location) //Attach a subgrid onto this current grid.
 	{
 		subGrid.location = location;
 		this->subGrids.push_back(subGrid);
 	}
-
-	//////////////////////////////////
-	// Setters & Getters:
+	/////////////////////////////////////////////
+	// Setters, Getters:
 	void setSize() { this->size = this->findSize(); }//Deliberately overloaded method
 	void setSize(COORD size) { this->size = size; }
 	void setLocation(COORD location) { this->location = location; }
@@ -180,24 +174,22 @@ public:
 	void setParent(Grid* parent) { this->parent = parent; }
 	void setSubGrids(std::vector<Grid> subGrids) { this->subGrids = subGrids; }
 	void setData(std::string data) { this->data = data; }
-	//
 	COORD getSize() { return this->size; }
 	COORD getLocation() { return this->location; }
 	std::string getDrawing() { return this->drawing; }
 	Grid* getParent() { return this->parent; }
 	std::vector<Grid> getSubGrids() { return this->subGrids; }
 	std::string getData() { return this->data; }
-
-	/////////////////////////////////
+	///////////////////////////////////////////
 	// Key functions
 	void display()
 	{
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), this->location);
 		short linesDown = 0;
 		std::string thisLine = "";
-		for (size_t i = 0; i < drawing.size(); i++)
+		for (size_t i = 0; i < this->drawing.size(); i++)
 		{
-			if (drawing[i] == '\n')
+			if (this->drawing[i] == '\n')
 			{
 				std::cout << thisLine;
 				thisLine = "";
@@ -206,7 +198,7 @@ public:
 			}
 			else
 			{
-				thisLine.append(1, drawing[i]);
+				thisLine.append(1, this->drawing[i]);
 			}
 		}
 		//Then, display each subGrid:
@@ -214,7 +206,6 @@ public:
 			it[0].display();
 		}
 	}
-
 	virtual void prepare()//Prepare the drawing, based on the most recent data that the object holds.  (...Do nothing here, until a class that inherits from 'Grid' does something here.)
 	{
 	}
@@ -234,15 +225,39 @@ public:
 	{
 		this->setDrawing("");//Deliberately empty, for now.
 	}
-
+	
 protected:
 
-	void setChar(COORD localLocation, char newChar) // Change a character in the 'drawing' string:
+	//An option given to print a line on the display... normally intended to be used by extensions of this class.
+	void printFromLoc(std::string toPrint, COORD loc)
 	{
-		this->drawing[(localLocation.X + 1) * (localLocation.Y + 1) - 1 + localLocation.Y] = newChar; //TODO: Look over & make sure this logic is right.
-		//	As goofy as 'localLocation' seems, it's to make it clear that this 'location' is relative the top-left corner of this current Grid, not necessarily the original canvas Grid object.
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), loc);
+		std::cout << toPrint;
 	}
-
+	//Add an entire section of stuff into the drawing
+	void addToDrawing(COORD localLocation, std::string string)
+	{
+		std::cout << "addToDrawing()";
+		short xindex = 0;
+		short yindex = 0;
+		for (size_t i = 0; i < string.size(); i++)
+		{
+			if (string[i] == '\n')
+			{
+				xindex = 0;
+				yindex += 1;
+			}
+			else
+			{
+				changeChar({ (short)(localLocation.X + xindex + i), (short)(localLocation.Y + yindex) }, string[i]);
+			}
+		}
+	}
+	//Set one char into the drawing, at a specified location.
+	void changeChar(COORD loc, char newChar) // Change a character in the 'drawing' string:
+	{
+		this->drawing[this->size.X * loc.Y + loc.Y + loc.X] = newChar;
+	}
 	COORD findSize() //Find the 'size' dimensions based on the drawing.
 	{
 		int sizeX = 0;
