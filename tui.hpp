@@ -44,7 +44,7 @@ To use:
 
 	>>  std::string drawing = " _._     _,-'""`-._\n(,-.`._,'(       |\`-/|\n    `-.-' \ )-`( , o o)\n          `-    \`_`"'-";
 	>>  Grid foxPicture{drawing};
-	>>  canvas.append(foxPicture, {0,25}); //'location'={0,25}, to place the drawing leftmost, and toward the bottom of the whole tapestry.
+	>>  canvas.append(&foxPicture, {0,25}); //'location'={0,25}, to place the drawing leftmost, and toward the bottom of the whole tapestry.
 
 			NOTES ABOUT LOCATION:
 			 - The 'location' is where the top left corner of this picture should get placed
@@ -136,96 +136,94 @@ data
 class Grid
 {
 public:
-	/////////////////////////////////////////
+
+	/*.- -.-. -.-. --- .-. -.. .. -. --. / - --- / .- .-.. .-.. / -.- -. --- .-- -. / .-.. .- .-- ... / --- ..-. / .- ...- .. .- - .. --*/
 	// Attributes
 	COORD location;
-	std::string drawing;
-	COORD size;//Size of the drawing.
+	std::vector<std::string> drawing;
+	COORD size;
 	Grid* parent;
-	std::vector<Grid> subGrids;
-	std::string data;//Most recent
-	/////////////////////////////////////////
+	std::vector<Grid*> subGrids;
+	std::string data;
+
+
+	/*- -. --..-- / - .... . .-. . / .. ... / -. --- / .-- .- -.-- / .- / -... . . / ... .... --- ..- .-.. -.. / -... . / .- -... .-.. . */
 	// Constructors
-	Grid(COORD size) //(To make the beginning canvas.)
-	{
-		this->setSize(size);
+	Grid(COORD size) 
+	{ 
+		this->setSize(size); 
 	}
-	Grid(std::string drawing) //(To make more additional grids)
+	Grid(std::string drawing)
 	{
-		this->setDrawing(drawing);
+		this->generateDrawingFromString(drawing);
 		this->setSize();
 	}
-	Grid() //(To make more additional grids... Use this constructor when you've made an extension of this class, and implemented initialDrawing().)
+	Grid()
 	{
 		this->initialDrawing();
 		this->setSize();
 	}
-	void append(Grid subGrid, COORD location) //Attach a subgrid onto this current grid.
+	void append(Grid* subGrid, COORD location)
 	{
-		subGrid.location = location;
+		(*subGrid).location = location;
+		(*subGrid).parent = this;
 		this->subGrids.push_back(subGrid);
 	}
-	/////////////////////////////////////////////
+
+
+	/* - --- / ..-. .-.. -.-- .-.-.- / .. - ... / .-- .. -. --. ... / .- .-. . / - --- --- / ... -- .- .-.. .-.. / - --- / --. . - / .. */
 	// Setters, Getters:
 	void setSize() { this->size = this->findSize(); }//Deliberately overloaded method
 	void setSize(COORD size) { this->size = size; }
 	void setLocation(COORD location) { this->location = location; }
-	void setDrawing(std::string drawing) { this->drawing = drawing; }
+	void setDrawing(std::vector<std::string> drawing) { this->drawing = drawing; }
+	void setDrawing(std::string drawing) { this->generateDrawingFromString(drawing); } //(Another overloaded setter here...)
 	void setParent(Grid* parent) { this->parent = parent; }
-	void setSubGrids(std::vector<Grid> subGrids) { this->subGrids = subGrids; }
+	void setSubGrids(std::vector<Grid*> subGrids) { this->subGrids = subGrids; }
 	void setData(std::string data) { this->data = data; }
+	void setChar(COORD loc, char character) { this->drawing[loc.Y][loc.X] = character; }
+	/*- ... / ..-. .- - / .-.. .. - - .-.. . / -... --- -.. -.-- / --- ..-. ..-. / - .... . / --. .-. --- ..- -. -.. .-.-.- / - .... . / */
 	COORD getSize() { return this->size; }
 	COORD getLocation() { return this->location; }
-	std::string getDrawing() { return this->drawing; }
+	std::vector<std::string> getDrawing() { return this->drawing; }
 	Grid* getParent() { return this->parent; }
-	std::vector<Grid> getSubGrids() { return this->subGrids; }
+	std::vector<Grid*> getSubGrids() { return this->subGrids; }
 	std::string getData() { return this->data; }
-	///////////////////////////////////////////
+
+
+	/*-... . . --..-- / --- ..-. / -.-. --- ..- .-. ... . --..-- / ..-. .-.. .. . ... / .- -. -.-- .-- .- -.-- / -... . -.-. .- ..- ... */
 	// Key functions
-	void display()
+	void display(int yes)
 	{
-		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), this->location);
-		short linesDown = 0;
-		std::string thisLine = "";
 		for (size_t i = 0; i < this->drawing.size(); i++)
 		{
-			if (this->drawing[i] == '\n')
-			{
-				std::cout << thisLine;
-				thisLine = "";
-				linesDown += 1;
-				SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), { this->location.X, (short)(this->location.Y + linesDown) });
-			}
-			else
-			{
-				thisLine.append(1, this->drawing[i]);
-			}
-		}
-		//Then, display each subGrid:
-		for (std::vector<Grid>::iterator it = this->subGrids.begin(); it != this->subGrids.end(); ++it) {
-			it[0].display();
+			std::cout << this->drawing[i];
 		}
 	}
-	virtual void prepare()//Prepare the drawing, based on the most recent data that the object holds.  (...Do nothing here, until a class that inherits from 'Grid' does something here.)
+	void display()
 	{
+		for (size_t i = 0; i < this->drawing.size(); i++) 
+		{ /*First, display the drawing of this Grid:*/
+			SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), { this->location.X, (short)(this->location.Y + i) });
+			std::cout << this->drawing[i];
+		}
+		for (std::vector<Grid*>::iterator it = this->subGrids.begin(); it != this->subGrids.end(); ++it) 
+		{ /*Then, display each subGrid:*/
+			(*it[0]).display();
+		}
 	}
+
+	virtual void initialDrawing() {}//Left 'virtual' for when it gets re-implemented in an extension of this class.
+	virtual void addData(std::string data) { this->setData(data); } //Currently, this method simply replaces the currently data with the given data. However, it's left open for a future programmer, if they want a 'Grid' extension to take in the new information in a different way. (For example, adding it to a list of recent data pieces...)
+	virtual void prepare() {}//Prepare the drawing, based on the most recent data that the object holds.  (...Do nothing here, until a class that inherits from 'Grid' does something here.)
 	void prepare(std::string data)
 	{
 		this->addData(data);
 		this->prepare();
 	}
-	virtual void addData(std::string data)
-	{
-		//Currently, this method simply replaces the currently data with the given data. 
-		// However, it's left open for a future programmer, if they want a 'Grid' extension to take in the new information in a different way.
-		// (For example, adding it to a list of recent data pieces...)
-		this->setData(data);
-	}
-	virtual void initialDrawing()//Left 'virtual' for when it gets re-implemented in an extension of this class.
-	{
-		this->setDrawing("");//Deliberately empty, for now.
-	}
 	
+
+/*. / -... . . ... / -.. --- -. .----. - / -.-. .- .-. . / .-- .... .- - / .... ..- -- .- -. ... / - .... .. -. -.- / .. ... / .. --*/
 protected:
 
 	//An option given to print a line on the display... normally intended to be used by extensions of this class.
@@ -237,7 +235,6 @@ protected:
 	//Add an entire section of stuff into the drawing
 	void addToDrawing(COORD localLocation, std::string string)
 	{
-		std::cout << "addToDrawing()";
 		short xindex = 0;
 		short yindex = 0;
 		for (size_t i = 0; i < string.size(); i++)
@@ -249,40 +246,40 @@ protected:
 			}
 			else
 			{
-				changeChar({ (short)(localLocation.X + xindex + i), (short)(localLocation.Y + yindex) }, string[i]);
+				setChar({ (short)(localLocation.X + xindex + i), (short)(localLocation.Y + yindex) }, string[i]);
 			}
 		}
-	}
-	//Set one char into the drawing, at a specified location.
-	void changeChar(COORD loc, char newChar) // Change a character in the 'drawing' string:
-	{
-		this->drawing[this->size.X * loc.Y + loc.Y + loc.X] = newChar;
 	}
 	COORD findSize() //Find the 'size' dimensions based on the drawing.
 	{
-		int sizeX = 0;
-		int maxSizeX = 0; 
-		int sizeY = 0;
-		for (int i = 0; i < (int)this->drawing.length(); i += 1)
+		size_t sizeY = this->drawing.size();
+		size_t sizeX = 0;
+		for (size_t i = 0; i < this->drawing.size(); i++)
 		{
-			if (this->drawing[i] == '\n')
+			if (this->drawing[i].length() > sizeX)
 			{
-				if (sizeX > maxSizeX)
-				{
-					maxSizeX = sizeX;
-				}
-				sizeX = 0;
-				sizeY += 1;
+				sizeX = this->drawing[i].length();
+			}
+		}
+		return { (short)sizeX, (short)sizeY };
+	}
+	void generateDrawingFromString(std::string drawing)
+	{
+		size_t vectorIndex = 0;
+		this->drawing.push_back("");
+		for (size_t i = 0; i < drawing.size(); i++)
+		{
+			if (drawing[i] != '\n')
+			{
+				this->drawing[vectorIndex].append(1, drawing[i]);
 			}
 			else
 			{
-				sizeX += 1;
+				vectorIndex += 1;
+				this->drawing.push_back("");
 			}
 		}
-		if (sizeX > maxSizeX)
-		{
-			maxSizeX = sizeX;
-		}
-		return { (short)maxSizeX, (short)sizeY };
 	}
 };
+
+/*.--. --- ... ... .. -... .-.. . .-.-.- */
