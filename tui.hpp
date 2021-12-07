@@ -111,7 +111,7 @@ public:
 virtual public:
 	prepare()
 	addData()
-	initialDrawing()
+	makeInitialDrawing()
 protected:
 	setChar()
 	findSize()
@@ -141,6 +141,7 @@ public:
 	//ATTRIBUTES
 	COORD location;
 	std::vector<std::string> drawing;
+	std::vector<std::string> initialDrawing;
 	COORD size;
 	Grid* parent;
 	std::vector<Grid*> subGrids;
@@ -160,7 +161,7 @@ public:
 	}
 	Grid()
 	{
-		this->initialDrawing();
+		this->makeInitialDrawing();
 		this->setSize();
 	}
 	void append(Grid* subGrid, COORD location)
@@ -173,20 +174,15 @@ public:
 
 	/* - --- / ..-. .-.. -.-- .-.-.- / .. - ... / .-- .. -. --. ... / .- .-. . / - --- --- / ... -- .- .-.. .-.. / - --- / --. . - / .. */
 	// SETTERS, GETTERS:
-	void setSize() { this->size = this->findSize(); }//Deliberately overloaded method
-	void setSize(COORD size) { this->size = size; }
 	void setLocation(COORD location) { this->location = location; }
 	void setDrawing(std::vector<std::string> drawing) { this->drawing = drawing; }
-	void setDrawing(std::string drawing) 
-	{ 
-		std::cout << "setDrawing()" << '\n';
-		this->drawing = this->generateDrawingFromString(drawing); 
-		std::cout << "Done with generateDrawingFromString()" << '\n';
-	} //(Another overloaded setter here...)
+		void setDrawing(std::string drawing) { this->drawing = this->generateDrawingFromString(drawing); } //(overloaded setter here...)
+		void setChar(COORD loc, char character) { this->drawing[loc.Y][loc.X] = character; }
+	void setSize(COORD size) { this->size = size; }
+		void setSize() { this->size = this->findSize(); }//Deliberately overloaded method
 	void setParent(Grid* parent) { this->parent = parent; }
 	void setSubGrids(std::vector<Grid*> subGrids) { this->subGrids = subGrids; }
 	void setData(std::string data) { this->data = data; }
-	void setChar(COORD loc, char character) { this->drawing[loc.Y][loc.X] = character; }
 	/*- ... / ..-. .- - / .-.. .. - - .-.. . / -... --- -.. -.-- / --- ..-. ..-. / - .... . / --. .-. --- ..- -. -.. .-.-.- / - .... . / */
 	COORD getSize() { return this->size; }
 	COORD getLocation() { return this->location; }
@@ -220,7 +216,7 @@ public:
 
 	virtual void addData(std::string data) { this->setData(data); } //Currently, this method simply replaces the currently data with the given data. However, it's left open for a future programmer, if they want a 'Grid' extension to take in the new information in a different way. (For example, adding it to a list of recent data pieces...)
 	
-	virtual void initialDrawing() {}//Left 'virtual' for when it gets re-implemented in an extension of this class.
+	virtual void makeInitialDrawing() {}//Left 'virtual' for when it gets re-implemented in an extension of this class.
 	
 	
 
@@ -265,14 +261,12 @@ protected:
 	}
 	std::vector<std::string> generateDrawingFromString(std::string drawing)
 	{
-		std::cout << drawing;
 		std::vector<std::string> stringToReturn;
 		std::string currentLine = "";
 		for (size_t i = 0; i < drawing.size(); i++)
 		{
 			if (drawing[i] != '\n')
 			{
-				std::cout << drawing[i] << '\n';
 				currentLine += drawing[i];
 				
 			}
